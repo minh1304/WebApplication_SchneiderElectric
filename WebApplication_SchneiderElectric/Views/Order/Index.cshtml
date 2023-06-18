@@ -1,0 +1,102 @@
+﻿@model IEnumerable<SalesOrderViewModel>
+@Html.AntiForgeryToken()
+
+
+@{
+    ViewData["Title"] = "Order";
+}
+
+<h2>Orders</h2>
+<div>
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+
+    <table id="myTable" class="dataTable">
+        <thead>
+            <tr>
+                <th>Sales Order</th>
+                <th>Sales Order Item</th>
+                <th>Work Order</th>
+                <th>Product ID</th>
+                <th>Product Description</th>
+                <th>Order Quantity</th>
+                <th>Order Status</th>
+                <th>Timestamp</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.SalesOrder</td>
+                    <td>@item.SalesOrderItem</td>
+                    <td>@item.WorkOrder</td>
+                    <td>@item.ProductID</td>
+                    <td>@item.ProductDescription</td>
+                    <td>@item.OrderQuantity</td>
+                    <td>@item.OrderStatus</td>
+                    <td>@item.Timestamp</td>
+                    <td>
+                        <button class="deleteBtn" data-salesOrderID="@item.SalesOrder">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .deleteBtn {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        font-weight: bold;
+        border-radius: 4px;
+    }
+
+        .deleteBtn:hover {
+            background-color: #c82333;
+        }
+</style>
+
+<!-- Thư viện jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css" />
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
+<script type="text/javascript">
+    var js = jQuery.noConflict(true);
+
+    js(document).ready(function () {
+        js('#myTable').DataTable({
+            searching: true
+        });
+
+        js('.deleteBtn').on('click', function () {
+            var salesOrderID = js(this).data('salesorderid');
+            console.log(salesOrderID);
+            salesOrderID = salesOrderID.toString();
+            js.ajax({
+                url: 'Order/DeleteOrder',
+                type: 'POST',
+                data: { SalesOrderID: salesOrderID},
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("XSRF-TOKEN",
+                        js('input:hidden[name="__RequestVerificationToken"]').val());
+                },
+                success: function (result) {
+                    window.location.reload();
+                },
+                error: function (xhr, status, error) {
+                    console.log(xhr.responseText);
+                }
+            });
+        });
+    });
+
+
+
+</script>
